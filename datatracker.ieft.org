@@ -1,0 +1,15 @@
+UIApplication.shared.isNetworkActivityIndicatorVisible = true
+
+let fetchImage = URLSession.shared.dataTask(.promise, with: url).compactMap{ UIImage(data: $0.data) }
+let fetchLocation = CLLocationManager.requestLocation().lastValue
+
+firstly {
+    when(fulfilled: fetchImage, fetchLocation)
+}.done { image, location in
+    self.imageView.image = image
+    self.label.text = "\(location)"
+}.ensure {
+    UIApplication.shared.isNetworkActivityIndicatorVisible = false
+}.catch { error in
+    self.show(UIAlertController(for: error), sender: self)
+}
